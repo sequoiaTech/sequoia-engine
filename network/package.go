@@ -7,14 +7,14 @@ import (
 )
 
 var length int32 = 0
+var headerSize int = 5
 
 type Package struct {
 	BufferSize int
-	HeaderSize int
 }
 
-func (p *Package) Package(message string) ([]byte, error) {
-	var length int32 = int32(len(message)) + 5
+func (P *Package) Package(message string) ([]byte, error) {
+	var length int32 = int32(len(message)) + int32(headerSize)
 	var pkg *bytes.Buffer = new(bytes.Buffer)
 	binary.Write(pkg, binary.BigEndian, []byte{0x0a})
 	binary.Write(pkg, binary.BigEndian, length)
@@ -25,13 +25,13 @@ func (p *Package) Package(message string) ([]byte, error) {
 	return pkg.Bytes(), nil
 }
 
-func (p *Package) UnPackage(reader *bufio.Reader) ([]byte, int32, error) {
+func (P *Package) UnPackage(reader *bufio.Reader) ([]byte, int32, error) {
 
 	// TODO :: if make []byte every time right
-	var buffer = make([]byte, p.BufferSize)
+	var buffer = make([]byte, P.BufferSize)
 
 	// header
-	header, err := reader.Peek(p.HeaderSize)
+	header, err := reader.Peek(headerSize)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -42,8 +42,8 @@ func (p *Package) UnPackage(reader *bufio.Reader) ([]byte, int32, error) {
 		if err != nil {
 			return nil, 0, err
 		}
-		reader.Discard(p.HeaderSize)
-		length -= int32(p.HeaderSize)
+		reader.Discard(headerSize)
+		length -= int32(headerSize)
 	}
 
 	// read
