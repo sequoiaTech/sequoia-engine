@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	debug = 0
-	info  = 1
-	error = 2
-	fatal = 3
+	debugLevel = 0
+	infoLevel  = 1
+	errorLevel = 2
+	fatalLevel = 3
 )
 
 const (
@@ -24,7 +24,7 @@ type Logger struct {
 	logLogger *log.Logger
 }
 
-func New(filePath string) *Logger {
+func New(filePath string) (*Logger, error) {
 
 	//var logger = new(Logger)
 	var logger = &Logger{}
@@ -33,7 +33,7 @@ func New(filePath string) *Logger {
 		//file, err := os.Create(filePath)
 		file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 
 		logger.file = file
@@ -42,7 +42,7 @@ func New(filePath string) *Logger {
 		logger.logLogger = log.New(os.Stdout, "", log.LstdFlags)
 	}
 
-	return logger
+	return logger, nil
 }
 
 func (l *Logger) format(data string, flag int) {
@@ -67,19 +67,19 @@ func (l *Logger) format(data string, flag int) {
 }
 
 func (l *Logger) Info(data string) {
-	l.format(data, info)
+	l.format(data, infoLevel)
 }
 
 func (l *Logger) Debug(data string) {
-	l.format(data, debug)
+	l.format(data, debugLevel)
 }
 
 func (l *Logger) Error(data string) {
-	l.format(data, error)
+	l.format(data, errorLevel)
 }
 
 func (l *Logger) Fatal(data string) {
-	l.format(data, fatal)
+	l.format(data, fatalLevel)
 }
 
 func (l *Logger) Close() {
